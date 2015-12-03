@@ -1,0 +1,39 @@
+package com.StudShare.config;
+
+
+import com.StudShare.rest.RESTRequestFilter;
+import com.StudShare.rest.RESTResponseFilter;
+import com.StudShare.rest.logging.LoggingManager;
+import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.servlet.ServletProperties;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import javax.ws.rs.ApplicationPath;
+
+
+@Configuration
+@ApplicationPath("rest/")
+public class JerseyConfig extends ResourceConfig
+{
+    private final String REST_PACKAGE = "com.StudShare.rest";
+    private final String URL_MAPPING = "/rest/*";
+
+    public JerseyConfig()
+    {
+        packages(REST_PACKAGE);
+    }
+
+
+    @Bean
+    public ServletRegistrationBean jerseyServlet()
+    {
+        ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), URL_MAPPING);
+        registration.addInitParameter(ServletProperties.JAXRS_APPLICATION_CLASS, JerseyConfig.class.getName());
+        return registration;
+    }
+}
