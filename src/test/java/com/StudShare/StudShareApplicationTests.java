@@ -11,22 +11,24 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(StudShareApplication.class)
-public class StudShareApplicationTests {
+public class StudShareApplicationTests
+{
 
-	@Autowired
-	Authenticator authenticator;
+    @Autowired
+    Authenticator authenticator;
 
-	@Test
-	public void contextLoads()
-	{
-		assertNotNull(authenticator);
-		assertNotNull(authenticator.getUserManager());
-		assertNotNull(authenticator.getUserManager().getSessionFactory());
+    @Test
+    public void contextLoads()
+    {
+        assertNotNull(authenticator);
+        assertNotNull(authenticator.getUserManager());
+        assertNotNull(authenticator.getUserManager().getSessionFactory());
 
-	}
+    }
 
 }

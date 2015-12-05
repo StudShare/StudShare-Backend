@@ -33,7 +33,6 @@ public class LoggingTest
     String tokenSSID;
 
 
-
     @Transactional
     @Rollback(value = false)
     public SiteUser addExampleUser(String username, String password) throws NoSuchProviderException, NoSuchAlgorithmException
@@ -54,32 +53,37 @@ public class LoggingTest
         String username = "user1",
                 password = "pass1";
 
-        SiteUser siteUser = addExampleUser(username,password);
+        SiteUser siteUser = authenticator.getUserManager().findUserByUsername("user1");
+        if( siteUser == null)
+            siteUser = addExampleUser(username, password);
 
-        expect().statusCode(401).when().with().formParameters("username", "ghghgh" , "password", "notmatchpassword").post(urlHost + "user/login");
-        tokenSSID = given().formParameters("username", username, "password", password).when().post(urlHost + "user/login").then().statusCode(200).extract().path("auth_token");
+        expect().statusCode(401).when().with().headers("username", "ghghgh", "password", "notmatchpassword").post(urlHost + "user/login");
+        tokenSSID = given().headers("username", username, "password", password).when().post(urlHost + "user/login").then().statusCode(200).extract().path("auth_token");
 
         authenticator.getUserManager().deleteToken(authenticator.getUserManager().findTokenBySSID(tokenSSID)); //FIRST WE MUST DELETE TOKEN WHICH WAS CREATED WITH LOGGING.
-                                                                                                                //TOKEN HAVE ALSO CONSTRAINT KEY idSiteUser
+        //TOKEN HAVE ALSO CONSTRAINT KEY idSiteUser
         authenticator.getUserManager().deleteUser(siteUser);
 
     }
+
     @Test
     public void checkLogoutTest() throws NoSuchProviderException, NoSuchAlgorithmException
     {
         String username = "user2",
                 password = "pass2";
-        SiteUser siteUser = addExampleUser(username,password);
+        SiteUser siteUser = authenticator.getUserManager().findUserByUsername("user2");
+        if(siteUser == null )
+            siteUser = addExampleUser(username, password);
 
 
-       given().headers("username", "bumbaja", "auth_token", "EXAMPLE_AUTH_TOKEN").when().post(urlHost + "user/logout").then().statusCode(401);
+        given().headers("username", "bumbaja", "auth_token", "EXAMPLE_AUTH_TOKEN").when().post(urlHost + "user/logout").then().statusCode(401);
 
-       tokenSSID = given().formParameters("username", username, "password", password).when().post(urlHost + "user/login").then().statusCode(200).extract().path("auth_token");
-       given().headers("username", username, "auth_token", tokenSSID).when().post(urlHost + "user/logout").then().statusCode(204);
+        tokenSSID = given().headers("username", username, "password", password).when().post(urlHost + "user/login").then().statusCode(200).extract().path("auth_token");
+        given().headers("username", username, "auth_token", tokenSSID).when().post(urlHost + "user/logout").then().statusCode(204);
 
 
-       //HERE WE DONT REMOVE TOKEN, BECAUSE TOKEN IS DELETING WHEN USER HAS BEEN LOGOUT
-       authenticator.getUserManager().deleteUser(siteUser);
+        //HERE WE DONT REMOVE TOKEN, BECAUSE TOKEN IS DELETING WHEN USER HAS BEEN LOGOUT
+        authenticator.getUserManager().deleteUser(siteUser);
 
     }
 

@@ -16,13 +16,16 @@ public class Token
     private long idToken;
 
     @ManyToOne
-    @JoinColumn(name="idSiteUser")
+    @JoinColumn(name = "idSiteUser")
     private SiteUser siteUser;
 
     @Column(nullable = false, length = 36, unique = true)
     private String ssid;
 
-    public Token(){}
+    public Token()
+    {
+    }
+
     public Token(SiteUser siteUser, String token)
     {
         this.siteUser = siteUser;

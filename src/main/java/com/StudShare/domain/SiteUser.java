@@ -4,6 +4,8 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import java.util.List;
+
 
 @Entity
 @NamedQueries({@NamedQuery(name = "getPersonByUsername", query = "Select su from SiteUser su where su.username = :username")})
@@ -20,7 +22,13 @@ public class SiteUser
     @Column(nullable = false)
     private String salt;
 
-    public SiteUser() {}
+    @OneToMany(mappedBy = "siteUser")
+    private List<Token> tokens;
+
+    public SiteUser()
+    {
+    }
+
     public SiteUser(String username, String hash, String salt)
     {
         this.username = username;
@@ -38,6 +46,7 @@ public class SiteUser
     {
         this.idSiteUser = idSiteUser;
     }
+
     public String getUsername()
     {
         return username;
@@ -67,4 +76,6 @@ public class SiteUser
     {
         this.salt = salt;
     }
+
+
 }

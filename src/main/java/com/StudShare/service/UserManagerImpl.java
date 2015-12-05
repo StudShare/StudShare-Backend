@@ -45,7 +45,7 @@ public class UserManagerImpl implements UserManagerDao
     @Override
     public SiteUser findUserById(SiteUser siteUser)
     {
-        return (SiteUser) sessionFactory.getCurrentSession().get(SiteUser.class, siteUser.getIdSiteUser());
+        return sessionFactory.getCurrentSession().get(SiteUser.class, siteUser.getIdSiteUser());
     }
 
 
@@ -54,19 +54,21 @@ public class UserManagerImpl implements UserManagerDao
     {
         return (Token) sessionFactory.getCurrentSession().getNamedQuery("getTokenBySSID").setString("ssid", ssid).uniqueResult();
     }
+
     @Override
     public Token findTokenById(Token token)
     {
-        return (Token) sessionFactory.getCurrentSession().get(Token.class, token.getIdToken());
+        return sessionFactory.getCurrentSession().get(Token.class, token.getIdToken());
     }
 
     @Override
     public SiteUser addUser(SiteUser siteUser)
     {
-        long idUser = ((Long)sessionFactory.getCurrentSession().save(siteUser)).longValue();
+        long idUser = ((Long) sessionFactory.getCurrentSession().save(siteUser)).longValue();
         siteUser.setIdSiteUser(idUser);
         return siteUser;
     }
+
     @Override
     public void deleteUser(SiteUser siteUser)
     {
@@ -76,7 +78,7 @@ public class UserManagerImpl implements UserManagerDao
     @Override
     public Token addToken(Token token)
     {
-        long idToken = ((Long)sessionFactory.getCurrentSession().save(token)).longValue();
+        long idToken = ((Long) sessionFactory.getCurrentSession().save(token)).longValue();
         token.setIdToken(idToken);
         return token;
     }

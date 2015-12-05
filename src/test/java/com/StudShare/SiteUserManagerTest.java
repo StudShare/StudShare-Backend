@@ -104,16 +104,18 @@ public class SiteUserManagerTest
         assertEquals(userToTests.getHash(), user.getHash());
 
     }
+
     @Test
     public void checkFindingUserById()
     {
-        SiteUser user = userManager.addUser(new SiteUser("UserMaster","password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("UserMaster", "password", "salt"));
         SiteUser userToTests = userManager.findUserById(user);
 
         assertEquals(userToTests.getIdSiteUser(), user.getIdSiteUser());
         assertEquals(userToTests.getUsername(), user.getUsername());
         assertEquals(userToTests.getHash(), user.getHash());
     }
+
     @Test
     public void checkFindingTokenBySSID()
     {

@@ -29,6 +29,7 @@ public final class Authenticator
     {
         return userManager;
     }
+
     public void setUserManager(UserManagerDao userManager)
     {
         this.userManager = userManager;
@@ -39,11 +40,11 @@ public final class Authenticator
 
         SiteUser siteUser = userManager.findUserByUsername(username);
 
-        if(siteUser != null)
+        if (siteUser != null)
         {
             String passwordToCheck = getSecurePassword(password, siteUser.getSalt());
-            
-            if(siteUser.getHash().equals(passwordToCheck))
+
+            if (siteUser.getHash().equals(passwordToCheck))
             {
                 Token token = new Token();
                 token.setSiteUser(siteUser);
@@ -55,7 +56,7 @@ public final class Authenticator
                     authToken = UUID.randomUUID().toString();
                     tokenExist = userManager.findTokenBySSID(authToken);
                 }
-                while(tokenExist != null);
+                while (tokenExist != null);
 
                 token.setToken(authToken);
                 userManager.addToken(token);
@@ -71,7 +72,7 @@ public final class Authenticator
      * from a authorized and authenticated source.
      *
      * @param username The username
-     * @param ssid  The authorization token generated after login
+     * @param ssid     The authorization token generated after login
      * @return TRUE for acceptance and FALSE for denied.
      */
     public boolean isAuthTokenValid(String username, String ssid)
@@ -79,10 +80,12 @@ public final class Authenticator
         SiteUser siteUser = userManager.findUserByUsername(username);
         Token token = userManager.findTokenBySSID(ssid);
 
-        if(token != null && siteUser !=null)
+        if (token != null && siteUser != null)
         {
-            if(token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser())
+            if (token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser())
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -94,12 +97,12 @@ public final class Authenticator
         SiteUser siteUser = userManager.findUserByUsername(username);
         Token token = userManager.findTokenBySSID(ssid);
 
-        if(token != null && siteUser != null)
+        if (token != null && siteUser != null)
         {
-            if(token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser())
+            if (token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser())
             {
-                    userManager.deleteToken(token);
-                    return;
+                userManager.deleteToken(token);
+                return;
             }
 
         }
@@ -111,7 +114,8 @@ public final class Authenticator
     public String getSecurePassword(String passwordToHash, String salt)
     {
         String generatedPassword = null;
-        try {
+        try
+        {
             // Create MessageDigest instance for MD5
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             //Add password bytes to digest
@@ -121,14 +125,15 @@ public final class Authenticator
             //This bytes[] has bytes in decimal format;
             //Convert it to hexadecimal format
             StringBuilder sb = new StringBuilder();
-            for(int i=0; i< bytes.length ;i++)
+            for (int i = 0; i < bytes.length; i++)
             {
                 sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
             }
             //Get complete hashed password in hex format
             generatedPassword = sb.toString();
         }
-        catch (NoSuchAlgorithmException e) {
+        catch (NoSuchAlgorithmException e)
+        {
             e.printStackTrace();
         }
         return generatedPassword;

@@ -24,6 +24,8 @@ public class HibernateConfig
     private String USERNAME;
     @Value("${jdbc.password}")
     private String PASSWORD;
+    @Value("${hibernate.hbm2ddl.auto}")
+    private String SCHEMA_MODE;
     @Value("${hibernate.dialect}")
     private String DIALECT;
     @Value("${hibernate.show_sql}")
@@ -40,10 +42,6 @@ public class HibernateConfig
     public DataSource getDataSource()
     {
 
-//        System.out.println("\n\n\n\n\n\n");
-//        System.out.println(DRIVER_CLASS_NAME + " "+ URL + " " + DATABASE_NAME + " " + USERNAME + " " + PASSWORD + " " + DIALECT + " " + SHOW_SQL);
-//        System.out.println("\n\n\n\n\n\n");
-
         BasicDataSource dataSource = new BasicDataSource();
 
         dataSource.setDriverClassName(DRIVER_CLASS_NAME);
@@ -59,8 +57,9 @@ public class HibernateConfig
     {
 
         LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(getDataSource());
-        //sessionBuilder.setProperty("hibernate.dialect", DIALECT);
-        //sessionBuilder.setProperty("hibernate.show_sql", SHOW_SQL);
+        sessionBuilder.setProperty("hibernate.hbm2ddl.auto", SCHEMA_MODE);
+        sessionBuilder.setProperty("hibernate.dialect", DIALECT);
+        sessionBuilder.setProperty("hibernate.show_sql", SHOW_SQL);
 
         sessionBuilder.scanPackages("com.StudShare.domain");
 

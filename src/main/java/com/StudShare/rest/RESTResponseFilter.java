@@ -10,18 +10,20 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 @PreMatching
-public class RESTResponseFilter implements ContainerResponseFilter {
+public class RESTResponseFilter implements ContainerResponseFilter
+{
 
-    private final static Logger log = Logger.getLogger( RESTResponseFilter.class.getName() );
+    private final static Logger log = Logger.getLogger(RESTResponseFilter.class.getName());
 
     @Override
-    public void filter( ContainerRequestContext requestCtx, ContainerResponseContext responseCtx ) throws IOException {
+    public void filter(ContainerRequestContext requestCtx, ContainerResponseContext responseCtx) throws IOException
+    {
 
-        log.info( "Filtering REST Response" );
+        log.info("Filtering REST Response");
 
-        responseCtx.getHeaders().add( "Access-Control-Allow-Origin", "*" );    // You may further limit certain client IPs with Access-Control-Allow-Origin instead of '*'
-        responseCtx.getHeaders().add( "Access-Control-Allow-Credentials", "true" );
-        responseCtx.getHeaders().add( "Access-Control-Allow-Methods", "GET, POST, DELETE, PUT" );
-        responseCtx.getHeaders().add( "Access-Control-Allow-Headers", HTTPHeaderNames.USERNAME + ", " + HTTPHeaderNames.AUTH_TOKEN );
+        responseCtx.getHeaders().add("Access-Control-Allow-Origin", "*");    // You may further limit certain client IPs with Access-Control-Allow-Origin instead of '*'
+        responseCtx.getHeaders().add("Access-Control-Allow-Credentials", "true");
+        responseCtx.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
+        responseCtx.getHeaders().add("Access-Control-Allow-Headers", HTTPHeaderNames.USERNAME + ", " + HTTPHeaderNames.AUTH_TOKEN);
     }
 }
