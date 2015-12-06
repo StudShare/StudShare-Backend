@@ -31,7 +31,7 @@ public class SiteUserManagerTest
     @Test
     public void checkAddingUser()
     {
-        SiteUser user = userManager.addUser(new SiteUser("mateusz", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("mateusz", "password", "salt", "example1@com.pl"));
 
         SiteUser userToTest = userManager.findUserById(user);
 
@@ -46,7 +46,7 @@ public class SiteUserManagerTest
     @Test
     public void checkDeletingUser()
     {
-        SiteUser user = userManager.addUser(new SiteUser("user1993", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("user1993", "password", "salt", "example2@com.pl"));
 
         SiteUser userToTests = userManager.findUserById(user);
 
@@ -67,7 +67,7 @@ public class SiteUserManagerTest
     @Test
     public void checkAddingToken()
     {
-        SiteUser user = userManager.addUser(new SiteUser("henio", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("henio", "password", "salt", "example3@com.pl"));
         Token token = userManager.addToken(new Token(user, "EXAMPLE-SSID-TOKEN"));
         Token tokenToTests = userManager.findTokenById(token);
 
@@ -79,7 +79,7 @@ public class SiteUserManagerTest
     @Test
     public void checkDeletingToken()
     {
-        SiteUser user = userManager.addUser(new SiteUser("GoodBoy", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("GoodBoy", "password", "salt", "example4@com.pl"));
         Token token = userManager.addToken(new Token(user, "EXAMPLE_SSID_TOKEN_FOR_DELETING"));
 
         Token tokenToTests = userManager.findTokenById(token);
@@ -96,7 +96,7 @@ public class SiteUserManagerTest
     @Test
     public void checkFindingUserByUsername()
     {
-        SiteUser user = userManager.addUser(new SiteUser("KOFLXYHBSA", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("KOFLXYHBSA", "password", "salt", "example5@com.pl"));
         SiteUser userToTests = userManager.findUserByUsername("KOFLXYHBSA");
 
         assertEquals(userToTests.getIdSiteUser(), user.getIdSiteUser());
@@ -108,7 +108,7 @@ public class SiteUserManagerTest
     @Test
     public void checkFindingUserById()
     {
-        SiteUser user = userManager.addUser(new SiteUser("UserMaster", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("UserMaster", "password", "salt", "example6@com.pl"));
         SiteUser userToTests = userManager.findUserById(user);
 
         assertEquals(userToTests.getIdSiteUser(), user.getIdSiteUser());
@@ -119,7 +119,7 @@ public class SiteUserManagerTest
     @Test
     public void checkFindingTokenBySSID()
     {
-        SiteUser user = userManager.addUser(new SiteUser("Kasia", "password", "salt"));
+        SiteUser user = userManager.addUser(new SiteUser("Kasia", "password", "salt", "example7@com.pl"));
         Token token = userManager.addToken(new Token(user, "FAJNY TOKEN"));
         Token tokenToTests = userManager.findTokenBySSID("FAJNY TOKEN");
 

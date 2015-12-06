@@ -8,7 +8,8 @@ import java.util.List;
 
 
 @Entity
-@NamedQueries({@NamedQuery(name = "getPersonByUsername", query = "Select su from SiteUser su where su.username = :username")})
+@NamedQueries({@NamedQuery(name = "getPersonByUsername", query = "Select su from SiteUser su where su.username = :username"),
+                @NamedQuery(name = "getPersonByEmail", query = "Select su from SiteUser su where su.email = :email")})
 public class SiteUser
 {
     @Id
@@ -17,6 +18,8 @@ public class SiteUser
 
     @Column(nullable = false, length = 32, unique = true)
     private String username;
+    @Column(nullable = false, length = 32, unique = true)
+    private String email;
     @Column(nullable = false)
     private String hash;
     @Column(nullable = false)
@@ -29,9 +32,10 @@ public class SiteUser
     {
     }
 
-    public SiteUser(String username, String hash, String salt)
+    public SiteUser(String username, String email, String hash, String salt)
     {
         this.username = username;
+        this.email = email;
         this.hash = hash;
         this.salt = salt;
     }
@@ -55,6 +59,26 @@ public class SiteUser
     public void setUsername(String name)
     {
         this.username = name;
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public List<Token> getTokens()
+    {
+        return tokens;
+    }
+
+    public void setTokens(List<Token> tokens)
+    {
+        this.tokens = tokens;
     }
 
     public String getHash()

@@ -20,6 +20,8 @@ public interface UserManagerDao
 
     SiteUser findUserByUsername(String username);
 
+    SiteUser findUserByEmail(String email);
+
     SiteUser findUserById(SiteUser siteUser);
 
     Token findTokenBySSID(String ssid);

@@ -1,16 +1,12 @@
 package com.StudShare;
 
-import com.StudShare.rest.logging.Authenticator;
+import com.StudShare.rest.logging.AuthenticatorLogin;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
@@ -20,7 +16,7 @@ public class StudShareApplicationTests
 {
 
     @Autowired
-    Authenticator authenticator;
+    AuthenticatorLogin authenticator;
 
     @Test
     public void contextLoads()

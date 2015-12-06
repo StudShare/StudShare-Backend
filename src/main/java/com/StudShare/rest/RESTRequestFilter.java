@@ -1,6 +1,6 @@
 package com.StudShare.rest;
 
-import com.StudShare.rest.logging.Authenticator;
+import com.StudShare.rest.logging.AuthenticatorLogin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,13 +15,12 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 @PreMatching
-@ComponentScan(basePackageClasses = Authenticator.class)
+@ComponentScan(basePackageClasses = AuthenticatorLogin.class)
 public class RESTRequestFilter implements ContainerRequestFilter
 {
 
     @Autowired
-    @Qualifier("authenticator")
-    Authenticator authenticator;
+    AuthenticatorLogin authenticatorLogin;
 
 
     private final static Logger log = Logger.getLogger(RESTRequestFilter.class.getName());
@@ -46,7 +45,7 @@ public class RESTRequestFilter implements ContainerRequestFilter
             String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
             String username = requestCtx.getHeaderString(HTTPHeaderNames.USERNAME);
             // if it isn't valid, just kick them out.
-            if (!authenticator.isAuthTokenValid(username, authToken))
+            if (!authenticatorLogin.isAuthTokenValid(username, authToken))
             {
                 requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
             }

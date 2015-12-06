@@ -18,13 +18,12 @@ import javax.ws.rs.core.*;
 
 
 @Path("/user")
-@ComponentScan(basePackageClasses = Authenticator.class)
+@ComponentScan(basePackageClasses = AuthenticatorLogin.class)
 public class LoggingManager
 {
 
     @Autowired
-    @Qualifier("authenticator")
-    Authenticator authenticator;
+    AuthenticatorLogin authenticatorLogin;
 
     @POST
     @Path("/login")
@@ -32,31 +31,11 @@ public class LoggingManager
     public Response login(@Context HttpHeaders httpHeaders)
             throws NoSuchProviderException, NoSuchAlgorithmException, JsonProcessingException
     {
+        String username = httpHeaders.getHeaderString(HTTPHeaderNames.USERNAME);
+        String password = httpHeaders.getHeaderString(HTTPHeaderNames.PASSWORD);
 
-        Map<String, String> map = new TreeMap<String, String>();
-        ObjectMapper mapper = new ObjectMapper();
+        return authenticatorLogin.login(username, password).build();
 
-
-        try
-        {
-            String username = httpHeaders.getHeaderString(HTTPHeaderNames.USERNAME);
-            String password = httpHeaders.getHeaderString(HTTPHeaderNames.PASSWORD);
-
-            String authToken = authenticator.login(username, password);
-
-            map.put("username", username);
-            map.put("auth_token", authToken);
-
-            String jsonResponse = mapper.writeValueAsString(map);
-
-            return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonResponse).build();
-        }
-        catch (final LoginException ex)
-        {
-            map.put("message", "Problem matching service key, username and password");
-            String jsonResponse = mapper.writeValueAsString(map);
-            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity(jsonResponse).build();
-        }
 
     }
 
@@ -65,32 +44,14 @@ public class LoggingManager
     @Path("/logout")
     public Response logout(@Context HttpHeaders httpHeaders) throws GeneralSecurityException
     {
-        try
-        {
 
-            String username = httpHeaders.getHeaderString(HTTPHeaderNames.USERNAME);
-            String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+        String username = httpHeaders.getHeaderString(HTTPHeaderNames.USERNAME);
+        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+
+        return authenticatorLogin.logout(username, authToken).build();
 
 
-            authenticator.logout(username, authToken);
-
-            return getNoCacheResponseBuilder(Response.Status.NO_CONTENT).build();
-
-        }
-        catch (final GeneralSecurityException ex)
-        {
-            return getNoCacheResponseBuilder(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
-    private Response.ResponseBuilder getNoCacheResponseBuilder(Response.Status status)
-    {
-        CacheControl cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setMaxAge(-1);
-        cc.setMustRevalidate(true);
-
-        return Response.status(status).cacheControl(cc);
-    }
 
 }

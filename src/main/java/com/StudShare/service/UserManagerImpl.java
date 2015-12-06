@@ -41,7 +41,11 @@ public class UserManagerImpl implements UserManagerDao
     {
         return (SiteUser) sessionFactory.getCurrentSession().getNamedQuery("getPersonByUsername").setString("username", username).uniqueResult();
     }
-
+    @Override
+    public SiteUser findUserByEmail(String email)
+    {
+        return (SiteUser) sessionFactory.getCurrentSession().getNamedQuery("getPersonByEmail").setString("email", email).uniqueResult();
+    }
     @Override
     public SiteUser findUserById(SiteUser siteUser)
     {
