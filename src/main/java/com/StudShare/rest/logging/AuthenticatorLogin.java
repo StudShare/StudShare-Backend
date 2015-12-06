@@ -45,46 +45,46 @@ public final class AuthenticatorLogin
     {
 
 
-        if(username != null && password != null)
+        if(username == null || password == null)
+            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie uzupelniles wszystkich pol!");
+        else if(userManager.findUserByUsername(username) == null)
+            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie ma konta o podanej nazwie uzytkownika");
+        else
         {
             SiteUser siteUser = userManager.findUserByUsername(username);
+            PasswordMatcher passwordMatcher = new PasswordMatcher();
+            String passwordToCheck = passwordMatcher.getSecurePassword(password, siteUser.getSalt());
 
-            if (siteUser != null)
+            if (siteUser.getHash().equals(passwordToCheck))
             {
-                PasswordMatcher passwordMatcher = new PasswordMatcher();
+                Map<String, String> map = new TreeMap<String, String>();
+                ObjectMapper mapper = new ObjectMapper();
+                Token token = new Token();
+                token.setSiteUser(siteUser);
+                String authToken;
+                Token tokenExist;
 
-                String passwordToCheck = passwordMatcher.getSecurePassword(password, siteUser.getSalt());
-
-                if (siteUser.getHash().equals(passwordToCheck))
+                do
                 {
-                    Map<String, String> map = new TreeMap<String, String>();
-                    ObjectMapper mapper = new ObjectMapper();
-                    Token token = new Token();
-                    token.setSiteUser(siteUser);
-                    String authToken;
-                    Token tokenExist;
-
-                    do
-                    {
-                        authToken = UUID.randomUUID().toString();
-                        tokenExist = userManager.findTokenBySSID(authToken);
-                    }
-                    while (tokenExist != null);
-
-                    token.setToken(authToken);
-                    userManager.addToken(token);
-
-                    map.put("username", username);
-                    map.put("auth_token", authToken);
-                    String jsonResponse = mapper.writeValueAsString(map);
-
-                    return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonResponse);
+                    authToken = UUID.randomUUID().toString();
+                    tokenExist = userManager.findTokenBySSID(authToken);
                 }
-                return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Haslo nie prawidlowe!");
+                while (tokenExist != null);
+
+                token.setToken(authToken);
+                userManager.addToken(token);
+
+                map.put("username", username);
+                map.put("auth_token", authToken);
+                String jsonResponse = mapper.writeValueAsString(map);
+
+                return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonResponse);
             }
-            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie ma konta o podanej nazwie uzytkownika");
+            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Haslo nie prawidlowe!");
         }
-        return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie uzupelniles wszystkich pol!");
+
+
+
     }
 
 
@@ -113,13 +113,11 @@ public final class AuthenticatorLogin
         SiteUser siteUser = userManager.findUserByUsername(username);
         Token token = userManager.findTokenBySSID(ssid);
 
-        if (token != null && siteUser != null)
-        {
-            if (token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser())
-            {
-                return true;
-            }
-        }
-        return false;
+        if (token == null || siteUser == null)
+            return false;
+        else if (!(token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser()))
+            return false;
+        else
+            return true;
     }
 }

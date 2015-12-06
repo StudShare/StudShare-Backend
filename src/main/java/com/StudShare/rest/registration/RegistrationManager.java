@@ -25,11 +25,13 @@ public class RegistrationManager
     public Response registration(@Context HttpHeaders httpHeaders) throws NoSuchProviderException, NoSuchAlgorithmException
     {
         String username = httpHeaders.getHeaderString(HTTPHeaderNames.USERNAME);
+        String email = httpHeaders.getHeaderString(HTTPHeaderNames.EMAIL);
+        String repeatEmail = httpHeaders.getHeaderString(HTTPHeaderNames.REPEAT_EMAIL);
         String password = httpHeaders.getHeaderString(HTTPHeaderNames.PASSWORD);
         String repeatPassword = httpHeaders.getHeaderString(HTTPHeaderNames.REPEAT_PASSWORD);
-        String email = httpHeaders.getHeaderString(HTTPHeaderNames.EMAIL);
 
-        return authenticatorRegistration.registration(username, password, repeatPassword, email).build();
+
+        return authenticatorRegistration.registration(username, email, repeatEmail, password, repeatPassword).build();
 
 
     }
