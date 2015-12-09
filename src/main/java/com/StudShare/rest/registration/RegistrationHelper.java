@@ -1,9 +1,10 @@
 package com.StudShare.rest.registration;
 
 import com.StudShare.config.EmailConfig;
+import com.StudShare.domain.RegToken;
 import com.StudShare.domain.SiteUser;
 import com.StudShare.rest.PasswordService;
-import com.StudShare.service.UserManagerDao;
+import com.StudShare.service.SiteUserManagerDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.mail.MailSender;
@@ -12,22 +13,25 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 
 @Component
-@ComponentScan(basePackageClasses = { UserManagerDao.class, EmailConfig.class})
+@ComponentScan(basePackageClasses = { SiteUserManagerDao.class, EmailConfig.class})
 public class RegistrationHelper
 {
     @Autowired
-    private UserManagerDao userManager;
+    private SiteUserManagerDao siteUserManager;
 
     @Autowired
     MailSender mailSender;
 
-    public Response.ResponseBuilder registerUser(String login, String email, String repeatEmail, String password, String repeatPassword)
+
+    public Response.ResponseBuilder registerUser(String login, String email, String repeatEmail, String password, String repeatPassword, UriInfo uriInfo)
             throws NoSuchProviderException, NoSuchAlgorithmException
     {
 
@@ -38,7 +42,7 @@ public class RegistrationHelper
             return getNoCacheResponseBuilder(badrequest).entity("Nie uzupelniles wszystkich pol!");
         else if(!checkLogin(login))
             return getNoCacheResponseBuilder(badrequest).entity("Nazwa uzytkownika moze posiadac litery i cyfry oraz miec od 3 do 15 znakow ");
-        else if(userManager.findUserByLogin(login) != null)
+        else if(siteUserManager.findSiteUserByLogin(login) != null)
             return getNoCacheResponseBuilder(badrequest).entity("Nazwa uzytkowniak jest juz zajeta");
         else if(!checkEmail(email))
             return getNoCacheResponseBuilder(badrequest).entity("Wpisny email posiada nieprawidlowe znaki");
@@ -48,7 +52,7 @@ public class RegistrationHelper
             return getNoCacheResponseBuilder(badrequest).entity("Haslo musi posiadac wiecej niz 6 znakow");
         else if(!password.equals(repeatPassword))
             return getNoCacheResponseBuilder(badrequest).entity("Podane hasla nie sa identyczne");
-        else if(userManager.findUserByEmail(email) != null)
+        else if(siteUserManager.findSiteUserByEmail(email) != null)
             return getNoCacheResponseBuilder(badrequest).entity("Email jest zajety");
         else
         {
@@ -56,17 +60,19 @@ public class RegistrationHelper
             String saltForPassword = passwordMatcher.generateSalt();
             String hashPassowrd = passwordMatcher.getSecurePassword(password, saltForPassword);
 
-            //sendMail("mateuszzweigert@gmail.com", "mateuszzweigert@gmail.com", "SUBJECT", "HELLO ITS EXAMPLE");
 
             //HERE WILL BE SENDING MAIL TO USERNAME
-            SiteUser siteUser = new SiteUser(login, hashPassowrd, saltForPassword, email);
-            userManager.addUser(siteUser);
+            String token = UUID.randomUUID().toString();
+
+            SiteUser siteUser = siteUserManager.addSiteUser(new SiteUser(login, hashPassowrd, saltForPassword, email));
+
+
+
 
             return getNoCacheResponseBuilder(Response.Status.OK);
         }
 
     }
-
 
     private boolean checkEmail(String email)
     {

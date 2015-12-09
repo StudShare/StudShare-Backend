@@ -24,9 +24,11 @@ public class SiteUser
     private String hash;
     @Column(nullable = false)
     private String salt;
+    @Column(nullable = false)
+    private boolean enabled;
 
     @OneToMany(mappedBy = "siteUser")
-    private List<LoginToken> loginTokens;
+    private List<LogToken> logTokens;
 
     public SiteUser()
     {
@@ -38,6 +40,7 @@ public class SiteUser
         this.hash = hash;
         this.salt = salt;
         this.email = email;
+        this.enabled = false;
     }
 
 
@@ -71,16 +74,6 @@ public class SiteUser
         this.email = email;
     }
 
-    public List<LoginToken> getLoginTokens()
-    {
-        return loginTokens;
-    }
-
-    public void setLoginTokens(List<LoginToken> loginTokens)
-    {
-        this.loginTokens = loginTokens;
-    }
-
     public String getHash()
     {
         return hash;
@@ -101,5 +94,23 @@ public class SiteUser
         this.salt = salt;
     }
 
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
 
+    public void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
+    }
+
+    public List<LogToken> getLogTokens()
+    {
+        return logTokens;
+    }
+
+    public void setLogTokens(List<LogToken> logTokens)
+    {
+        this.logTokens = logTokens;
+    }
 }

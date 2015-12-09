@@ -1,10 +1,11 @@
 package com.StudShare.rest.logging;
 
 
-import com.StudShare.domain.LoginToken;
+import com.StudShare.domain.LogToken;
 import com.StudShare.domain.SiteUser;
 import com.StudShare.rest.PasswordService;
-import com.StudShare.service.UserManagerDao;
+import com.StudShare.service.LogTokenManagerDao;
+import com.StudShare.service.SiteUserManagerDao;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,21 +22,24 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 
 @Component
-@ComponentScan(basePackageClasses = UserManagerDao.class)
+@ComponentScan(basePackageClasses = SiteUserManagerDao.class)
 public final class LoginAuthenticator
 {
 
     @Autowired
-    private UserManagerDao userManager;
+    private LogTokenManagerDao logTokenManager;
 
-    public UserManagerDao getUserManager()
+    @Autowired
+    private SiteUserManagerDao siteUserManager;
+
+    public LogTokenManagerDao getLogTokenManager()
     {
-        return userManager;
+        return logTokenManager;
     }
 
-    public void setUserManager(UserManagerDao userManager)
+    public SiteUserManagerDao getSiteUserManager()
     {
-        this.userManager = userManager;
+        return siteUserManager;
     }
 
     public Response.ResponseBuilder login(String login, String password) throws JsonProcessingException
@@ -44,11 +48,11 @@ public final class LoginAuthenticator
 
         if(login == null || password == null)
             return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie uzupelniles wszystkich pol!");
-        else if(userManager.findUserByLogin(login) == null)
+        else if(siteUserManager.findSiteUserByLogin(login) == null)
             return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie ma konta o podanej nazwie uzytkownika");
         else
         {
-            SiteUser siteUser = userManager.findUserByLogin(login);
+            SiteUser siteUser = siteUserManager.findSiteUserByLogin(login);
             PasswordService passwordMatcher = new PasswordService();
             String passwordToCheck = passwordMatcher.getSecurePassword(password, siteUser.getSalt());
 
@@ -56,20 +60,20 @@ public final class LoginAuthenticator
             {
                 Map<String, String> map = new TreeMap<String, String>();
                 ObjectMapper mapper = new ObjectMapper();
-                LoginToken loginToken = new LoginToken();
-                loginToken.setSiteUser(siteUser);
+                LogToken logToken = new LogToken();
+                logToken.setSiteUser(siteUser);
                 String authToken;
-                LoginToken loginTokenExist;
+                LogToken logTokenExist;
 
                 do
                 {
                     authToken = UUID.randomUUID().toString();
-                    loginTokenExist = userManager.findTokenBySSID(authToken);
+                    logTokenExist = logTokenManager.findLogTokenBySSID(authToken);
                 }
-                while (loginTokenExist != null);
+                while (logTokenExist != null);
 
-                loginToken.setSsid(authToken);
-                userManager.addToken(loginToken);
+                logToken.setSsid(authToken);
+                logTokenManager.addLogToken(logToken);
 
                 map.put("login", login);
                 map.put("auth_token", authToken);
@@ -88,9 +92,9 @@ public final class LoginAuthenticator
     public Response.ResponseBuilder logout(String login, String ssid) throws GeneralSecurityException
     {
 
-        LoginToken loginToken = userManager.findTokenBySSID(ssid);
+        LogToken logToken = logTokenManager.findLogTokenBySSID(ssid);
 
-        userManager.deleteToken(loginToken);
+        logTokenManager.deleteLogToken(logToken);
         return getNoCacheResponseBuilder(Response.Status.NO_CONTENT);
 
     }
@@ -107,12 +111,12 @@ public final class LoginAuthenticator
 
     public boolean isAuthTokenValid(String login, String ssid)
     {
-        SiteUser siteUser = userManager.findUserByLogin(login);
-        LoginToken loginToken = userManager.findTokenBySSID(ssid);
+        SiteUser siteUser = siteUserManager.findSiteUserByLogin(login);
+        LogToken logToken = logTokenManager.findLogTokenBySSID(ssid);
 
-        if (loginToken == null || siteUser == null)
+        if (logToken == null || siteUser == null)
             return false;
-        else if (!(loginToken.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser()))
+        else if (!(logToken.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser()))
             return false;
         else
             return true;

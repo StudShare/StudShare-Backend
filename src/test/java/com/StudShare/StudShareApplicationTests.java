@@ -22,8 +22,8 @@ public class StudShareApplicationTests
     public void contextLoads()
     {
         assertNotNull(loginAuthenticator);
-        assertNotNull(loginAuthenticator.getUserManager());
-        assertNotNull(loginAuthenticator.getUserManager().getSessionFactory());
+        assertNotNull(loginAuthenticator.getSiteUserManager());
+        assertNotNull(loginAuthenticator.getSiteUserManager().getSessionFactory());
 
     }
 

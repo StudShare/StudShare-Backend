@@ -7,39 +7,39 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 @Entity
-@NamedQueries({@NamedQuery(name = "getTokenBySSID", query = "Select t from LoginToken t where t.ssid = :ssid")})
-public class LoginToken
+@NamedQueries({@NamedQuery(name = "loginToken.bySSID", query = "Select l from LogToken l where l.ssid = :ssid")})
+public class LogToken
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idToken;
+    private long idLogToken;
 
     @ManyToOne
     @JoinColumn(name = "idSiteUser")
     private SiteUser siteUser;
 
-    @Column(nullable = false, length = 36, unique = true)
+    @Column(nullable = false, unique = true)
     private String ssid;
 
-    public LoginToken()
+    public LogToken()
     {
     }
 
-    public LoginToken(SiteUser siteUser, String token)
+    public LogToken(SiteUser siteUser, String token)
     {
         this.siteUser = siteUser;
         this.ssid = token;
     }
 
-    public long getIdToken()
+    public long getIdLogToken()
     {
-        return idToken;
+        return idLogToken;
     }
 
-    public void setIdToken(long idToken)
+    public void setIdLogToken(long idLogToken)
     {
-        this.idToken = idToken;
+        this.idLogToken = idLogToken;
     }
 
     public SiteUser getSiteUser()
