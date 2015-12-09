@@ -1,8 +1,7 @@
 package com.StudShare.rest;
 
-import com.StudShare.rest.logging.AuthenticatorLogin;
+import com.StudShare.rest.logging.LoginAuthenticator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.io.IOException;
@@ -15,12 +14,12 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 @PreMatching
-@ComponentScan(basePackageClasses = AuthenticatorLogin.class)
+@ComponentScan(basePackageClasses = LoginAuthenticator.class)
 public class RESTRequestFilter implements ContainerRequestFilter
 {
 
     @Autowired
-    AuthenticatorLogin authenticatorLogin;
+    LoginAuthenticator authenticatorLogin;
 
 
     private final static Logger log = Logger.getLogger(RESTRequestFilter.class.getName());
@@ -35,7 +34,7 @@ public class RESTRequestFilter implements ContainerRequestFilter
         // IMPORTANT!!! First, Acknowledge any pre-flight test from browsers for this case before validating the headers (CORS stuff)
         if (requestCtx.getRequest().getMethod().equals("OPTIONS"))
         {
-            requestCtx.abortWith(Response.status(Response.Status.OK).build());
+            requestCtx.abortWith(Response.status(Response.Status.CREATED).build());
             return;
         }
 
@@ -43,7 +42,7 @@ public class RESTRequestFilter implements ContainerRequestFilter
         if (path.startsWith("user/logout"))
         {
             String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-            String username = requestCtx.getHeaderString(HTTPHeaderNames.USERNAME);
+            String username = requestCtx.getHeaderString(HTTPHeaderNames.LOGIN);
             // if it isn't valid, just kick them out.
             if (!authenticatorLogin.isAuthTokenValid(username, authToken))
             {

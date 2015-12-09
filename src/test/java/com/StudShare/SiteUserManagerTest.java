@@ -1,14 +1,11 @@
 package com.StudShare;
 
-import com.StudShare.config.HibernateConfig;
+import com.StudShare.domain.LoginToken;
 import com.StudShare.domain.SiteUser;
-import com.StudShare.domain.Token;
 import com.StudShare.service.UserManagerDao;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -24,7 +21,6 @@ public class SiteUserManagerTest
 {
 
     @Autowired
-    @Qualifier("userManager")
     UserManagerDao userManager;
 
 
@@ -37,7 +33,7 @@ public class SiteUserManagerTest
 
         assertNotNull(userToTest);
         assertEquals(userToTest.getIdSiteUser(), user.getIdSiteUser());
-        assertEquals(userToTest.getUsername(), user.getUsername());
+        assertEquals(userToTest.getLogin(), user.getLogin());
         assertEquals(userToTest.getHash(), user.getHash());
 
 
@@ -52,7 +48,7 @@ public class SiteUserManagerTest
 
         assertNotNull(userToTests);
         assertEquals(userToTests.getIdSiteUser(), user.getIdSiteUser());
-        assertEquals(userToTests.getUsername(), user.getUsername());
+        assertEquals(userToTests.getLogin(), user.getLogin());
         assertEquals(userToTests.getHash(), user.getHash());
 
 
@@ -68,39 +64,39 @@ public class SiteUserManagerTest
     public void checkAddingToken()
     {
         SiteUser user = userManager.addUser(new SiteUser("henio", "password", "salt", "example3@com.pl"));
-        Token token = userManager.addToken(new Token(user, "EXAMPLE-SSID-TOKEN"));
-        Token tokenToTests = userManager.findTokenById(token);
+        LoginToken loginToken = userManager.addToken(new LoginToken(user, "EXAMPLE-SSID-TOKEN"));
+        LoginToken loginTokenToTests = userManager.findTokenById(loginToken);
 
-        assertNotNull(tokenToTests);
-        assertEquals(tokenToTests.getSiteUser().getIdSiteUser(), token.getSiteUser().getIdSiteUser());
-        assertEquals(tokenToTests.getToken(), token.getToken());
+        assertNotNull(loginTokenToTests);
+        assertEquals(loginTokenToTests.getSiteUser().getIdSiteUser(), loginToken.getSiteUser().getIdSiteUser());
+        assertEquals(loginTokenToTests.getSsid(), loginToken.getSsid());
     }
 
     @Test
     public void checkDeletingToken()
     {
         SiteUser user = userManager.addUser(new SiteUser("GoodBoy", "password", "salt", "example4@com.pl"));
-        Token token = userManager.addToken(new Token(user, "EXAMPLE_SSID_TOKEN_FOR_DELETING"));
+        LoginToken loginToken = userManager.addToken(new LoginToken(user, "EXAMPLE_SSID_TOKEN_FOR_DELETING"));
 
-        Token tokenToTests = userManager.findTokenById(token);
+        LoginToken loginTokenToTests = userManager.findTokenById(loginToken);
 
-        assertNotNull(tokenToTests);
+        assertNotNull(loginTokenToTests);
 
-        userManager.deleteToken(tokenToTests);
+        userManager.deleteToken(loginTokenToTests);
 
-        tokenToTests = userManager.findTokenById(token);
+        loginTokenToTests = userManager.findTokenById(loginToken);
 
-        assertNull(tokenToTests);
+        assertNull(loginTokenToTests);
     }
 
     @Test
-    public void checkFindingUserByUsername()
+    public void checkFindingUserByLogin()
     {
         SiteUser user = userManager.addUser(new SiteUser("KOFLXYHBSA", "password", "salt", "example5@com.pl"));
-        SiteUser userToTests = userManager.findUserByUsername("KOFLXYHBSA");
+        SiteUser userToTests = userManager.findUserByLogin("KOFLXYHBSA");
 
         assertEquals(userToTests.getIdSiteUser(), user.getIdSiteUser());
-        assertEquals(userToTests.getUsername(), user.getUsername());
+        assertEquals(userToTests.getLogin(), user.getLogin());
         assertEquals(userToTests.getHash(), user.getHash());
 
     }
@@ -112,7 +108,7 @@ public class SiteUserManagerTest
         SiteUser userToTests = userManager.findUserById(user);
 
         assertEquals(userToTests.getIdSiteUser(), user.getIdSiteUser());
-        assertEquals(userToTests.getUsername(), user.getUsername());
+        assertEquals(userToTests.getLogin(), user.getLogin());
         assertEquals(userToTests.getHash(), user.getHash());
     }
 
@@ -120,11 +116,11 @@ public class SiteUserManagerTest
     public void checkFindingTokenBySSID()
     {
         SiteUser user = userManager.addUser(new SiteUser("Kasia", "password", "salt", "example7@com.pl"));
-        Token token = userManager.addToken(new Token(user, "FAJNY TOKEN"));
-        Token tokenToTests = userManager.findTokenBySSID("FAJNY TOKEN");
+        LoginToken loginToken = userManager.addToken(new LoginToken(user, "FAJNY TOKEN"));
+        LoginToken loginTokenToTests = userManager.findTokenBySSID("FAJNY TOKEN");
 
-        assertEquals(tokenToTests.getIdToken(), token.getIdToken());
-        assertEquals(tokenToTests.getToken(), token.getToken());
-        assertEquals(tokenToTests.getSiteUser().getIdSiteUser(), token.getSiteUser().getIdSiteUser());
+        assertEquals(loginTokenToTests.getIdToken(), loginToken.getIdToken());
+        assertEquals(loginTokenToTests.getSsid(), loginToken.getSsid());
+        assertEquals(loginTokenToTests.getSiteUser().getIdSiteUser(), loginToken.getSiteUser().getIdSiteUser());
     }
 }

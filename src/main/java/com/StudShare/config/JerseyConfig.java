@@ -1,12 +1,6 @@
 package com.StudShare.config;
 
-
-import com.StudShare.rest.RESTRequestFilter;
-import com.StudShare.rest.RESTResponseFilter;
-import com.StudShare.rest.logging.LoggingManager;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;

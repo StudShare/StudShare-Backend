@@ -1,7 +1,7 @@
 package com.StudShare.service;
 
+import com.StudShare.domain.LoginToken;
 import com.StudShare.domain.SiteUser;
-import com.StudShare.domain.Token;
 import org.hibernate.SessionFactory;
 
 public interface UserManagerDao
@@ -14,17 +14,17 @@ public interface UserManagerDao
 
     void deleteUser(SiteUser siteUser);
 
-    Token addToken(Token token);
+    LoginToken addToken(LoginToken loginToken);
 
-    void deleteToken(Token token);
+    void deleteToken(LoginToken loginToken);
 
-    SiteUser findUserByUsername(String username);
+    SiteUser findUserByLogin(String login);
 
     SiteUser findUserByEmail(String email);
 
     SiteUser findUserById(SiteUser siteUser);
 
-    Token findTokenBySSID(String ssid);
+    LoginToken findTokenBySSID(String ssid);
 
-    Token findTokenById(Token token);
+    LoginToken findTokenById(LoginToken loginToken);
 }

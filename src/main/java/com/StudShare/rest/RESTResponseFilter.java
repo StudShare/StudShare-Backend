@@ -24,6 +24,6 @@ public class RESTResponseFilter implements ContainerResponseFilter
         responseCtx.getHeaders().add("Access-Control-Allow-Origin", "*");    // You may further limit certain client IPs with Access-Control-Allow-Origin instead of '*'
         responseCtx.getHeaders().add("Access-Control-Allow-Credentials", "true");
         responseCtx.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
-        responseCtx.getHeaders().add("Access-Control-Allow-Headers", HTTPHeaderNames.USERNAME + ", " + HTTPHeaderNames.AUTH_TOKEN);
+        responseCtx.getHeaders().add("Access-Control-Allow-Headers", HTTPHeaderNames.LOGIN + ", " + HTTPHeaderNames.AUTH_TOKEN);
     }
 }

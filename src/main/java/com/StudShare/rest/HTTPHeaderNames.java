@@ -3,7 +3,7 @@ package com.StudShare.rest;
 public interface HTTPHeaderNames
 {
 
-    public static final String USERNAME = "username";
+    public static final String LOGIN = "login";
     public static final String EMAIL = "email";
     public static final String REPEAT_EMAIL = "repeat_email";
     public static final String PASSWORD = "password";

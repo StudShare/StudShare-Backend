@@ -31,12 +31,6 @@ public class HibernateConfig
     @Value("${hibernate.show_sql}")
     private String SHOW_SQL;
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev()
-    {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
-
 
     @Bean(name = "dataSource")
     public DataSource getDataSource()

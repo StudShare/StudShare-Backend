@@ -7,8 +7,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 @Entity
-@NamedQueries({@NamedQuery(name = "getTokenBySSID", query = "Select t from Token t where t.ssid = :ssid")})
-public class Token
+@NamedQueries({@NamedQuery(name = "getTokenBySSID", query = "Select t from LoginToken t where t.ssid = :ssid")})
+public class LoginToken
 {
 
     @Id
@@ -22,11 +22,11 @@ public class Token
     @Column(nullable = false, length = 36, unique = true)
     private String ssid;
 
-    public Token()
+    public LoginToken()
     {
     }
 
-    public Token(SiteUser siteUser, String token)
+    public LoginToken(SiteUser siteUser, String token)
     {
         this.siteUser = siteUser;
         this.ssid = token;
@@ -52,12 +52,12 @@ public class Token
         this.siteUser = person;
     }
 
-    public String getToken()
+    public String getSsid()
     {
         return ssid;
     }
 
-    public void setToken(String token)
+    public void setSsid(String token)
     {
         this.ssid = token;
     }

@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 
-public class PasswordMatcher
+public class PasswordService
 {
 
     public String getSecurePassword(String passwordToHash, String salt)
@@ -40,7 +40,7 @@ public class PasswordMatcher
     public String generateSalt() throws NoSuchAlgorithmException, NoSuchProviderException
     {
         //Always use a SecureRandom generator
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         //Create array for salt
         byte[] salt = new byte[64];
         //Get a random salt

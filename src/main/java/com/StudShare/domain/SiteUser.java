@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @Entity
-@NamedQueries({@NamedQuery(name = "getPersonByUsername", query = "Select su from SiteUser su where su.username = :username"),
+@NamedQueries({@NamedQuery(name = "getPersonByLogin", query = "Select su from SiteUser su where su.login = :login"),
                 @NamedQuery(name = "getPersonByEmail", query = "Select su from SiteUser su where su.email = :email")})
 public class SiteUser
 {
@@ -17,8 +17,8 @@ public class SiteUser
     private long idSiteUser;
 
     @Column(nullable = false, length = 32, unique = true)
-    private String username;
-    @Column(nullable = false, length = 32, unique = true)
+    private String login;
+    @Column(nullable = false, length = 64, unique = true)
     private String email;
     @Column(nullable = false)
     private String hash;
@@ -26,18 +26,18 @@ public class SiteUser
     private String salt;
 
     @OneToMany(mappedBy = "siteUser")
-    private List<Token> tokens;
+    private List<LoginToken> loginTokens;
 
     public SiteUser()
     {
     }
 
-    public SiteUser(String username, String email, String hash, String salt)
+    public SiteUser(String login, String hash, String salt, String email)
     {
-        this.username = username;
-        this.email = email;
+        this.login = login;
         this.hash = hash;
         this.salt = salt;
+        this.email = email;
     }
 
 
@@ -51,14 +51,14 @@ public class SiteUser
         this.idSiteUser = idSiteUser;
     }
 
-    public String getUsername()
+    public String getLogin()
     {
-        return username;
+        return login;
     }
 
-    public void setUsername(String name)
+    public void setLogin(String name)
     {
-        this.username = name;
+        this.login = name;
     }
 
     public String getEmail()
@@ -71,14 +71,14 @@ public class SiteUser
         this.email = email;
     }
 
-    public List<Token> getTokens()
+    public List<LoginToken> getLoginTokens()
     {
-        return tokens;
+        return loginTokens;
     }
 
-    public void setTokens(List<Token> tokens)
+    public void setLoginTokens(List<LoginToken> loginTokens)
     {
-        this.tokens = tokens;
+        this.loginTokens = loginTokens;
     }
 
     public String getHash()

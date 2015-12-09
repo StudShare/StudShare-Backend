@@ -1,17 +1,15 @@
 package com.StudShare.rest.logging;
 
 
+import com.StudShare.domain.LoginToken;
 import com.StudShare.domain.SiteUser;
-import com.StudShare.domain.Token;
-import com.StudShare.rest.PasswordMatcher;
+import com.StudShare.rest.PasswordService;
 import com.StudShare.service.UserManagerDao;
 
 
-import com.StudShare.service.UserManagerImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
@@ -19,13 +17,12 @@ import java.security.*;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-import javax.security.auth.login.LoginException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 
 @Component
 @ComponentScan(basePackageClasses = UserManagerDao.class)
-public final class AuthenticatorLogin
+public final class LoginAuthenticator
 {
 
     @Autowired
@@ -41,40 +38,40 @@ public final class AuthenticatorLogin
         this.userManager = userManager;
     }
 
-    public Response.ResponseBuilder login(String username, String password) throws JsonProcessingException
+    public Response.ResponseBuilder login(String login, String password) throws JsonProcessingException
     {
 
 
-        if(username == null || password == null)
+        if(login == null || password == null)
             return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie uzupelniles wszystkich pol!");
-        else if(userManager.findUserByUsername(username) == null)
+        else if(userManager.findUserByLogin(login) == null)
             return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie ma konta o podanej nazwie uzytkownika");
         else
         {
-            SiteUser siteUser = userManager.findUserByUsername(username);
-            PasswordMatcher passwordMatcher = new PasswordMatcher();
+            SiteUser siteUser = userManager.findUserByLogin(login);
+            PasswordService passwordMatcher = new PasswordService();
             String passwordToCheck = passwordMatcher.getSecurePassword(password, siteUser.getSalt());
 
             if (siteUser.getHash().equals(passwordToCheck))
             {
                 Map<String, String> map = new TreeMap<String, String>();
                 ObjectMapper mapper = new ObjectMapper();
-                Token token = new Token();
-                token.setSiteUser(siteUser);
+                LoginToken loginToken = new LoginToken();
+                loginToken.setSiteUser(siteUser);
                 String authToken;
-                Token tokenExist;
+                LoginToken loginTokenExist;
 
                 do
                 {
                     authToken = UUID.randomUUID().toString();
-                    tokenExist = userManager.findTokenBySSID(authToken);
+                    loginTokenExist = userManager.findTokenBySSID(authToken);
                 }
-                while (tokenExist != null);
+                while (loginTokenExist != null);
 
-                token.setToken(authToken);
-                userManager.addToken(token);
+                loginToken.setSsid(authToken);
+                userManager.addToken(loginToken);
 
-                map.put("username", username);
+                map.put("login", login);
                 map.put("auth_token", authToken);
                 String jsonResponse = mapper.writeValueAsString(map);
 
@@ -88,12 +85,12 @@ public final class AuthenticatorLogin
     }
 
 
-    public Response.ResponseBuilder logout(String username, String ssid) throws GeneralSecurityException
+    public Response.ResponseBuilder logout(String login, String ssid) throws GeneralSecurityException
     {
 
-        Token token = userManager.findTokenBySSID(ssid);
+        LoginToken loginToken = userManager.findTokenBySSID(ssid);
 
-        userManager.deleteToken(token);
+        userManager.deleteToken(loginToken);
         return getNoCacheResponseBuilder(Response.Status.NO_CONTENT);
 
     }
@@ -108,14 +105,14 @@ public final class AuthenticatorLogin
         return Response.status(status).cacheControl(cc);
     }
 
-    public boolean isAuthTokenValid(String username, String ssid)
+    public boolean isAuthTokenValid(String login, String ssid)
     {
-        SiteUser siteUser = userManager.findUserByUsername(username);
-        Token token = userManager.findTokenBySSID(ssid);
+        SiteUser siteUser = userManager.findUserByLogin(login);
+        LoginToken loginToken = userManager.findTokenBySSID(ssid);
 
-        if (token == null || siteUser == null)
+        if (loginToken == null || siteUser == null)
             return false;
-        else if (!(token.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser()))
+        else if (!(loginToken.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser()))
             return false;
         else
             return true;

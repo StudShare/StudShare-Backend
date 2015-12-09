@@ -1,8 +1,8 @@
 package com.StudShare.service;
 
 import com.StudShare.config.HibernateConfig;
+import com.StudShare.domain.LoginToken;
 import com.StudShare.domain.SiteUser;
-import com.StudShare.domain.Token;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,9 +37,9 @@ public class UserManagerImpl implements UserManagerDao
     }
 
     @Override
-    public SiteUser findUserByUsername(String username)
+    public SiteUser findUserByLogin(String login)
     {
-        return (SiteUser) sessionFactory.getCurrentSession().getNamedQuery("getPersonByUsername").setString("username", username).uniqueResult();
+        return (SiteUser) sessionFactory.getCurrentSession().getNamedQuery("getPersonByLogin").setString("login", login).uniqueResult();
     }
     @Override
     public SiteUser findUserByEmail(String email)
@@ -54,15 +54,15 @@ public class UserManagerImpl implements UserManagerDao
 
 
     @Override
-    public Token findTokenBySSID(String ssid)
+    public LoginToken findTokenBySSID(String ssid)
     {
-        return (Token) sessionFactory.getCurrentSession().getNamedQuery("getTokenBySSID").setString("ssid", ssid).uniqueResult();
+        return (LoginToken) sessionFactory.getCurrentSession().getNamedQuery("getTokenBySSID").setString("ssid", ssid).uniqueResult();
     }
 
     @Override
-    public Token findTokenById(Token token)
+    public LoginToken findTokenById(LoginToken loginToken)
     {
-        return sessionFactory.getCurrentSession().get(Token.class, token.getIdToken());
+        return sessionFactory.getCurrentSession().get(LoginToken.class, loginToken.getIdToken());
     }
 
     @Override
@@ -80,17 +80,17 @@ public class UserManagerImpl implements UserManagerDao
     }
 
     @Override
-    public Token addToken(Token token)
+    public LoginToken addToken(LoginToken loginToken)
     {
-        long idToken = ((Long) sessionFactory.getCurrentSession().save(token)).longValue();
-        token.setIdToken(idToken);
-        return token;
+        long idToken = ((Long) sessionFactory.getCurrentSession().save(loginToken)).longValue();
+        loginToken.setIdToken(idToken);
+        return loginToken;
     }
 
     @Override
-    public void deleteToken(Token token)
+    public void deleteToken(LoginToken loginToken)
     {
-        sessionFactory.getCurrentSession().delete(token);
+        sessionFactory.getCurrentSession().delete(loginToken);
     }
 
 }
