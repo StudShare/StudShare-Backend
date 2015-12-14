@@ -13,6 +13,8 @@ public interface SiteUserManagerDao
 
     void deleteSiteUser(SiteUser siteSiteUser);
 
+    void updateUser(SiteUser siteUser);
+
     SiteUser findSiteUserByLogin(String login);
 
     SiteUser findSiteUserByEmail(String email);

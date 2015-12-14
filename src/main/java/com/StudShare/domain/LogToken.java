@@ -15,16 +15,14 @@ public class LogToken
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idLogToken;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = SiteUser.class)
     @JoinColumn(name = "idSiteUser")
     private SiteUser siteUser;
 
     @Column(nullable = false, unique = true)
     private String ssid;
 
-    public LogToken()
-    {
-    }
+    public LogToken() {}
 
     public LogToken(SiteUser siteUser, String token)
     {

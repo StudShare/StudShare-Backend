@@ -1,19 +1,22 @@
 package com.StudShare.rest.registration;
 
-import com.StudShare.config.EmailConfig;
 import com.StudShare.domain.RegToken;
 import com.StudShare.domain.SiteUser;
-import com.StudShare.rest.PasswordService;
+import com.StudShare.service.RegTokenManagerDao;
 import com.StudShare.service.SiteUserManagerDao;
+import com.StudShare.utils.MailHelper;
+import com.StudShare.utils.NoCacheResponse;
+import com.StudShare.utils.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.UUID;
@@ -21,55 +24,77 @@ import java.util.regex.Pattern;
 
 
 @Component
-@ComponentScan(basePackageClasses = { SiteUserManagerDao.class, EmailConfig.class})
+@ComponentScan(basePackageClasses = { SiteUserManagerDao.class, MailHelper.class,
+        RegTokenManagerDao.class, NoCacheResponse.class })
 public class RegistrationHelper
 {
-    @Autowired
-    private SiteUserManagerDao siteUserManager;
 
     @Autowired
-    MailSender mailSender;
+    SiteUserManagerDao siteUserManager;
 
+    @Autowired
+    RegTokenManagerDao regTokenManager;
 
-    public Response.ResponseBuilder registerUser(String login, String email, String repeatEmail, String password, String repeatPassword, UriInfo uriInfo)
-            throws NoSuchProviderException, NoSuchAlgorithmException
+    @Autowired
+    MailHelper mailHelper;
+
+    @Autowired
+    NoCacheResponse noCacheResponse;
+
+    public Response.ResponseBuilder registerUser(String login, String email, String repeatEmail, String password,
+                                                 String repeatPassword, UriInfo uriInfo)
+            throws NoSuchProviderException, NoSuchAlgorithmException, URISyntaxException
     {
 
-        Response.Status badrequest  = Response.Status.BAD_REQUEST;
+        Response.Status badRequest  = Response.Status.BAD_REQUEST;
 
 
-        if (login == null || password == null || repeatPassword == null || email == null)
-            return getNoCacheResponseBuilder(badrequest).entity("Nie uzupelniles wszystkich pol!");
+        if (login == null || password == null || repeatPassword == null || email == null || repeatEmail == null)
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Nie uzupelniles wszystkich pol!");
+        else if(login.length() == 0 || password.length() == 0 || repeatPassword.length() ==0 || email.length() == 0 || repeatEmail.length() == 0)
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Nie uzupelniles wszystkich pol!");
         else if(!checkLogin(login))
-            return getNoCacheResponseBuilder(badrequest).entity("Nazwa uzytkownika moze posiadac litery i cyfry oraz miec od 3 do 15 znakow ");
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Nazwa uzytkownika moze posiadac litery i cyfry oraz miec od 3 do 15 znakow ");
         else if(siteUserManager.findSiteUserByLogin(login) != null)
-            return getNoCacheResponseBuilder(badrequest).entity("Nazwa uzytkowniak jest juz zajeta");
-        else if(!checkEmail(email))
-            return getNoCacheResponseBuilder(badrequest).entity("Wpisny email posiada nieprawidlowe znaki");
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Nazwa uzytkowniak jest juz zajeta");
+        else if (!checkEmail(email))
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Wpisny email posiada nieprawidlowe znaki");
         else if(!email.equals(repeatEmail))
-            return getNoCacheResponseBuilder(badrequest).entity("Podane emaile nie sa identyczne");
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Podane emaile nie sa identyczne");
         else if(password.length() < 6)
-            return getNoCacheResponseBuilder(badrequest).entity("Haslo musi posiadac wiecej niz 6 znakow");
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Haslo musi posiadac wiecej niz 6 znakow");
         else if(!password.equals(repeatPassword))
-            return getNoCacheResponseBuilder(badrequest).entity("Podane hasla nie sa identyczne");
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Podane hasla nie sa identyczne");
         else if(siteUserManager.findSiteUserByEmail(email) != null)
-            return getNoCacheResponseBuilder(badrequest).entity("Email jest zajety");
+            return noCacheResponse.getNoCacheResponseBuilder(badRequest).entity("Email jest zajety");
         else
         {
             PasswordService passwordMatcher = new PasswordService();
             String saltForPassword = passwordMatcher.generateSalt();
-            String hashPassowrd = passwordMatcher.getSecurePassword(password, saltForPassword);
+            String hashPassword = passwordMatcher.getSecurePassword(password, saltForPassword);
 
 
             //HERE WILL BE SENDING MAIL TO USERNAME
             String token = UUID.randomUUID().toString();
 
-            SiteUser siteUser = siteUserManager.addSiteUser(new SiteUser(login, hashPassowrd, saltForPassword, email));
+            SiteUser siteUser = siteUserManager.addSiteUser(new SiteUser(login, hashPassword, saltForPassword, email));
+            RegToken regToken = regTokenManager.addRegToken(new RegToken(token, siteUser));
 
 
 
+            mailHelper.sendMail("Studshare.pl", email, "Witamy na Studshare.pl",
+                    "Twoje konto jest obecnie nieaktywne." +
+                    " Aby aktywować konto musisz odwiedzić poniższą stronę: \n"
+                    + uriInfo.getAbsolutePath()+ "?u=" + regToken.getSiteUser().getIdSiteUser()
+                    + "&activation_key="+ regToken.getActivationKey());
 
-            return getNoCacheResponseBuilder(Response.Status.OK);
+            String urlRegistration = "/registration.html";
+
+
+            Cookie cookie = new Cookie("email", siteUser.getEmail() , urlRegistration , "" );
+
+            return noCacheResponse.getNoCacheResponseBuilder(Response.Status.OK).cookie(new NewCookie(cookie, "", 60, false));
+
         }
 
     }
@@ -82,24 +107,7 @@ public class RegistrationHelper
     {
         return Pattern.compile("^[a-z0-9_-]{3,15}$").matcher(login).matches();
     }
-    private Response.ResponseBuilder getNoCacheResponseBuilder(Response.Status status)
-    {
-        CacheControl cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setMaxAge(-1);
-        cc.setMustRevalidate(true);
 
-        return Response.status(status).cacheControl(cc);
-    }
 
-    public void sendMail(String from, String to, String subject, String msg) {
-        //creating message
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(msg);
-        //sending message
-        mailSender.send(message);
-    }
+
 }

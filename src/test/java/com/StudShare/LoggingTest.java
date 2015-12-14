@@ -1,7 +1,7 @@
 package com.StudShare;
 
 import com.StudShare.domain.SiteUser;
-import com.StudShare.rest.PasswordService;
+import com.StudShare.utils.PasswordService;
 import com.StudShare.rest.logging.LoginAuthenticator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class LoggingTest
         PasswordService passwordMatcher = new PasswordService();
         String salt = passwordMatcher.generateSalt();
         String hashPassword = passwordMatcher.getSecurePassword(password, salt);
-        user = loginAuthenticator.getSiteUserManager().addSiteUser(new SiteUser(login, hashPassword, salt , email));
+        user = loginAuthenticator.getSiteUserManager().addSiteUser(new SiteUser(login, hashPassword, salt, email));
 
         return user;
     }

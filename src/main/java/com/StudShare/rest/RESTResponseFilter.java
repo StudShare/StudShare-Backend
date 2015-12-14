@@ -1,12 +1,12 @@
 package com.StudShare.rest;
 
-import java.io.IOException;
-import java.util.logging.Logger;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 @Provider
 @PreMatching

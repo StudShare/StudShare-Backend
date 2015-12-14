@@ -1,4 +1,4 @@
-package com.StudShare.rest;
+package com.StudShare.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

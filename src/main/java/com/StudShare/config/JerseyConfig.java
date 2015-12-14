@@ -11,11 +11,11 @@ import javax.ws.rs.ApplicationPath;
 
 
 @Configuration
-@ApplicationPath("rest/")
+@ApplicationPath("/*")
 public class JerseyConfig extends ResourceConfig
 {
     private final String REST_PACKAGE = "com.StudShare.rest";
-    private final String URL_MAPPING = "/rest/*";
+    private final String SERVLET_MAPPING = "/rest/*";
 
     public JerseyConfig()
     {
@@ -26,7 +26,7 @@ public class JerseyConfig extends ResourceConfig
     @Bean
     public ServletRegistrationBean jerseyServlet()
     {
-        ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), URL_MAPPING);
+        ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), SERVLET_MAPPING);
         registration.addInitParameter(ServletProperties.JAXRS_APPLICATION_CLASS, JerseyConfig.class.getName());
         return registration;
     }

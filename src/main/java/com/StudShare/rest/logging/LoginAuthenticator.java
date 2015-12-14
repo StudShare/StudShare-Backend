@@ -3,26 +3,24 @@ package com.StudShare.rest.logging;
 
 import com.StudShare.domain.LogToken;
 import com.StudShare.domain.SiteUser;
-import com.StudShare.rest.PasswordService;
 import com.StudShare.service.LogTokenManagerDao;
 import com.StudShare.service.SiteUserManagerDao;
-
-
+import com.StudShare.utils.NoCacheResponse;
+import com.StudShare.utils.PasswordService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
-import java.security.*;
+import javax.ws.rs.core.Response;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Response;
 
 @Component
-@ComponentScan(basePackageClasses = SiteUserManagerDao.class)
+@ComponentScan(basePackageClasses = {LogTokenManagerDao.class, SiteUserManagerDao.class, NoCacheResponse.class})
 public final class LoginAuthenticator
 {
 
@@ -31,6 +29,9 @@ public final class LoginAuthenticator
 
     @Autowired
     private SiteUserManagerDao siteUserManager;
+
+    @Autowired
+    private NoCacheResponse noCacheResponse;
 
     public LogTokenManagerDao getLogTokenManager()
     {
@@ -46,10 +47,14 @@ public final class LoginAuthenticator
     {
 
 
-        if(login == null || password == null)
-            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie uzupelniles wszystkich pol!");
-        else if(siteUserManager.findSiteUserByLogin(login) == null)
-            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie ma konta o podanej nazwie uzytkownika");
+        if (login == null || login.length() == 0 || password == null || password.length() == 0)
+        {
+            return noCacheResponse.getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie uzupelniles wszystkich pol!");
+        }
+        else if (siteUserManager.findSiteUserByLogin(login) == null)
+        {
+            return noCacheResponse.getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Nie ma konta o podanej nazwie uzytkownika");
+        }
         else
         {
             SiteUser siteUser = siteUserManager.findSiteUserByLogin(login);
@@ -79,11 +84,10 @@ public final class LoginAuthenticator
                 map.put("auth_token", authToken);
                 String jsonResponse = mapper.writeValueAsString(map);
 
-                return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonResponse);
+                return noCacheResponse.getNoCacheResponseBuilder(Response.Status.OK).entity(jsonResponse);
             }
-            return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Haslo nie prawidlowe!");
+            return noCacheResponse.getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity("Haslo nie prawidlowe!");
         }
-
 
 
     }
@@ -95,19 +99,10 @@ public final class LoginAuthenticator
         LogToken logToken = logTokenManager.findLogTokenBySSID(ssid);
 
         logTokenManager.deleteLogToken(logToken);
-        return getNoCacheResponseBuilder(Response.Status.NO_CONTENT);
+        return noCacheResponse.getNoCacheResponseBuilder(Response.Status.NO_CONTENT);
 
     }
 
-    private Response.ResponseBuilder getNoCacheResponseBuilder(Response.Status status)
-    {
-        CacheControl cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setMaxAge(-1);
-        cc.setMustRevalidate(true);
-
-        return Response.status(status).cacheControl(cc);
-    }
 
     public boolean isAuthTokenValid(String login, String ssid)
     {
@@ -115,10 +110,16 @@ public final class LoginAuthenticator
         LogToken logToken = logTokenManager.findLogTokenBySSID(ssid);
 
         if (logToken == null || siteUser == null)
+        {
             return false;
+        }
         else if (!(logToken.getSiteUser().getIdSiteUser() == siteUser.getIdSiteUser()))
+        {
             return false;
+        }
         else
+        {
             return true;
+        }
     }
 }

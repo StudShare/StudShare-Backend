@@ -8,7 +8,7 @@ public interface RegTokenManagerDao
 
     void deleteRegToken(RegToken regToken);
 
-    RegToken findRegTokenByActivationKey(String token);
+    RegToken findRegTokenByActivationKey(String activationKey);
 
     RegToken findRegTokenById(RegToken regToken);
 }

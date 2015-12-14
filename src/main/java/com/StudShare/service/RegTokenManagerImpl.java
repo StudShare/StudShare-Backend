@@ -33,6 +33,7 @@ public class RegTokenManagerImpl implements RegTokenManagerDao
     {
         sessionFactory.getCurrentSession().delete(regToken);
     }
+
     @Override
     public RegToken findRegTokenByActivationKey(String activationKey)
     {

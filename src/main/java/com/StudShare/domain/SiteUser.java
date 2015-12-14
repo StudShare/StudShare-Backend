@@ -27,12 +27,13 @@ public class SiteUser
     @Column(nullable = false)
     private boolean enabled;
 
-    @OneToMany(mappedBy = "siteUser")
+    @OneToMany(mappedBy = "siteUser", cascade = CascadeType.REMOVE)
     private List<LogToken> logTokens;
 
-    public SiteUser()
-    {
-    }
+    @OneToOne(mappedBy = "siteUser", cascade = CascadeType.REMOVE)
+    private RegToken regToken;
+
+    public SiteUser() {}
 
     public SiteUser(String login, String hash, String salt, String email)
     {
@@ -104,13 +105,4 @@ public class SiteUser
         this.enabled = enabled;
     }
 
-    public List<LogToken> getLogTokens()
-    {
-        return logTokens;
-    }
-
-    public void setLogTokens(List<LogToken> logTokens)
-    {
-        this.logTokens = logTokens;
-    }
 }
