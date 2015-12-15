@@ -15,7 +15,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -81,19 +80,21 @@ public class RegistrationHelper
             RegToken regToken = regTokenManager.addRegToken(new RegToken(token, siteUser));
 
 
+            String activationLink =  uriInfo.getAbsolutePath()+ "?u=" + regToken.getSiteUser().getIdSiteUser()
+                                     + "&activation_key="+ regToken.getActivationKey();
 
-            mailHelper.sendMail("Studshare.pl", email, "Witamy na Studshare.pl",
+            mailHelper.sendMail("Studshare.pl", siteUser.getEmail(), "Witamy na Studshare.pl",
                     "Twoje konto jest obecnie nieaktywne." +
                     " Aby aktywować konto musisz odwiedzić poniższą stronę: \n"
-                    + uriInfo.getAbsolutePath()+ "?u=" + regToken.getSiteUser().getIdSiteUser()
-                    + "&activation_key="+ regToken.getActivationKey());
+                    + activationLink);
+
 
             String urlRegistration = "/registration.html";
 
 
             Cookie cookie = new Cookie("email", siteUser.getEmail() , urlRegistration , "" );
 
-            return noCacheResponse.getNoCacheResponseBuilder(Response.Status.OK).cookie(new NewCookie(cookie, "", 60, false));
+            return noCacheResponse.getNoCacheResponseBuilder(Response.Status.OK).cookie(new NewCookie(cookie, "", 60, false)).entity(activationLink);
 
         }
 

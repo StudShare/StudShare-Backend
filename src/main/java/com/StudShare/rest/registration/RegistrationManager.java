@@ -33,13 +33,13 @@ public class RegistrationManager
                                  @Context UriInfo uriInfo) throws NoSuchProviderException, NoSuchAlgorithmException, URISyntaxException
     {
 
-        String username = httpHeaders.getHeaderString(HTTPHeaderNames.LOGIN);
+        String login = httpHeaders.getHeaderString(HTTPHeaderNames.LOGIN);
         String email = httpHeaders.getHeaderString(HTTPHeaderNames.EMAIL);
         String repeatEmail = httpHeaders.getHeaderString(HTTPHeaderNames.REPEAT_EMAIL);
         String password = httpHeaders.getHeaderString(HTTPHeaderNames.PASSWORD);
         String repeatPassword = httpHeaders.getHeaderString(HTTPHeaderNames.REPEAT_PASSWORD);
 
-        return registrationHelper.registerUser(username, email, repeatEmail, password, repeatPassword, uriInfo).build();
+        return registrationHelper.registerUser(login, email, repeatEmail, password, repeatPassword, uriInfo).build();
 
     }
 
