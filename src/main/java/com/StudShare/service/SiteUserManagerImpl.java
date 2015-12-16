@@ -68,9 +68,9 @@ public class SiteUserManagerImpl implements SiteUserManagerDao
     }
 
     @Override
-    public void updateUser(SiteUser siteUser)
+    public SiteUser updateUser(SiteUser siteUser)
     {
-        sessionFactory.getCurrentSession().merge(siteUser);
+        return (SiteUser) sessionFactory.getCurrentSession().merge(siteUser);
     }
 
 

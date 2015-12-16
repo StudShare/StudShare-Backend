@@ -65,8 +65,7 @@ public final class LoginAuthenticator
             {
                 Map<String, String> map = new TreeMap<String, String>();
                 ObjectMapper mapper = new ObjectMapper();
-                LogToken logToken = new LogToken();
-                logToken.setSiteUser(siteUser);
+
                 String authToken;
                 LogToken logTokenExist;
 
@@ -77,7 +76,7 @@ public final class LoginAuthenticator
                 }
                 while (logTokenExist != null);
 
-                logToken.setSsid(authToken);
+                LogToken logToken = new LogToken(authToken, siteUser);
                 logTokenManager.addLogToken(logToken);
 
                 map.put("login", login);
